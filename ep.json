@@ -1,0 +1,14 @@
+{
+  "parts": [
+    {
+      "name": "main",
+      "hooks": {
+        "eejsBlock_styles": "ep_markdown_toc/index"
+      },
+      "client_hooks": {
+        "postAceInit": "ep_markdown_toc/static/js/client_hooks",
+        "aceEditEvent": "ep_markdown_toc/static/js/client_hooks"
+      }
+    }
+  ]
+}

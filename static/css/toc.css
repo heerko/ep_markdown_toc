@@ -1,0 +1,21 @@
+#markdown-toc {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: white;
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  max-height: 80vh;
+  overflow: auto;
+  font-size: 0.9em;
+  z-index: 9999;
+}
+#markdown-toc a {
+  display: block;
+  cursor: pointer;
+  color: #0366d6;
+  text-decoration: none;
+}
+#markdown-toc a:hover {
+  text-decoration: underline;
+}

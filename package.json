@@ -1,0 +1,36 @@
+{
+  "name": "ep_markdown_toc",
+  "description": "Provides markdown-based heading detection and TOC for Etherpad, used in Octomode.",
+  "version": "1.0.2",
+  "author": {
+    "name": "hrk",
+    "email": "heerko@hackersanddesigners.nl"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ether/ep_markdown_toc.git"
+  },
+  "dependencies": {
+    "showdown": "*"
+  },
+  "contributors": [],
+  "license": "Apache-2.0",
+  "funding": {
+    "type": "individual",
+    "url": "https://etherpad.org/"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-etherpad": "^4.0.4",
+    "typescript": "^5.4.2",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.12.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
+  }
+}
