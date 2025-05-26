@@ -1,21 +1,37 @@
 #markdown-toc {
   position: fixed;
   top: 60px;
-  right: 20px;
+  left: 20px;
   background: white;
   padding: 0.5em;
   border: 1px solid #ccc;
-  max-height: 80vh;
+  max-width: 30rem;
+  height: auto;
+  max-height: 100vh;
   overflow: auto;
   font-size: 0.9em;
   z-index: 9999;
+  max-width: 200px;
+  
 }
 #markdown-toc a {
   display: block;
   cursor: pointer;
   color: #0366d6;
   text-decoration: none;
+  display: inline-block;
+  overflow: hidden;
 }
 #markdown-toc a:hover {
   text-decoration: underline;
 }
+
+#editorcontainer { margin-left: 200px; }
+#editbar .menu_left [data-key="bold"] { display: none; }
+#editbar .menu_left [data-key="italic"] { display: none; }
+#editbar .menu_left [data-key="underline"] { display: none; }
+#editbar .menu_left [data-key="strikethrough"] { display: none; }
+#editbar .menu_left [data-key="bold"] { display: none; }
+#editbar .menu_left [data-key="bold"] + li { display: none; }
+#editbar .menu_left [data-key="insertorderedlist"] { display: none; }
+#editbar .menu_left [data-key="insertunorderedlist"] { display: none; }
