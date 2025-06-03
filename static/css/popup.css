@@ -1,0 +1,30 @@
+#markdown-cheat {
+  position: absolute;
+  right: 10px;
+  top: 40px;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-width: 400px;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 10px;
+}
+
+#markdown-cheat a {
+  color: var(--primary-color);
+}
+
+#markdown-cheat h2 {
+  margin-top: 0;
+}
+
+#markdown-cheat .popup-content {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+#markdown-cheat .popup-content pre {
+    white-space: break-spaces;
+}

@@ -1,32 +1,45 @@
-#markdown-toc {
+#toc-container {
   position: fixed;
   top: 60px;
-  left: 20px;
+  left: 5px;
   background: white;
   padding: 0.5em;
   border: 1px solid #ccc;
-  max-width: 30rem;
   height: auto;
-  max-height: 100vh;
+  max-height: 90vh;
   overflow: auto;
   font-size: 0.9em;
   z-index: 9999;
-  max-width: 200px;
-  
 }
+
+#toc-container:not(.as-popup) {
+  opacity: 0;
+  transform: scale(.7);
+  transition: all .3s cubic-bezier(.74,-.05,.27,1.75);
+  visibility: hidden;
+}
+
+#markdown-toc {
+  padding: 5px;
+  min-width: 185px;
+  max-width: 185px;
+  list-style-type: none;
+}
+
 #markdown-toc a {
-  display: block;
   cursor: pointer;
-  color: #0366d6;
+  color: var(--primary-color);
   text-decoration: none;
   display: inline-block;
-  overflow: hidden;
+  white-space: break-spaces;
 }
+
 #markdown-toc a:hover {
   text-decoration: underline;
 }
 
-#editorcontainer { margin-left: 200px; }
+.has-toc #editorcontainer { margin-left: 200px; } 
+
 #editbar .menu_left [data-key="bold"] { display: none; }
 #editbar .menu_left [data-key="italic"] { display: none; }
 #editbar .menu_left [data-key="underline"] { display: none; }
@@ -35,3 +48,11 @@
 #editbar .menu_left [data-key="bold"] + li { display: none; }
 #editbar .menu_left [data-key="insertorderedlist"] { display: none; }
 #editbar .menu_left [data-key="insertunorderedlist"] { display: none; }
+
+/* 
+.panel {
+  display: block;
+  position: fixed;
+  z-index: 1;
+  width: 175px;
+} */

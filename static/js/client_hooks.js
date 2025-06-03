@@ -168,12 +168,12 @@ const updateTOC = () => {
     tocContainer.removeChild(tocContainer.firstChild);
   }
 
-	// TODO, add styling to indicate heading level
   headings.forEach(h => {
+    const li = document.createElement('li');
+    
     const link = document.createElement('a');
     link.textContent = `${'–'.repeat(h.level - 1)} ${h.text}`;
     link.href = '#';
-    link.style.display = 'block';
     link.style.marginLeft = `${(h.level - 1) * 1.2}em`;
     link.dataset.line = h.lineNumber.toString();
     
@@ -183,7 +183,8 @@ const updateTOC = () => {
       scrollToLine(h.lineNumber);
     };
     
-    tocContainer.appendChild(link);
+    li.appendChild(link);
+    tocContainer.appendChild(li);
   });
 };
 
@@ -207,3 +208,31 @@ exports.aceInitialized = (hook, context) => {
   updateTOC();
 }; 
 
+exports.postToolbarInit = () => {
+  $('#markdown-cheat-toggle').on('click', () => {
+    $('#markdown-cheat').toggleClass('popup-show');
+  });
+
+  const padcookie = require('ep_etherpad-lite/static/js/pad_cookie').padcookie;
+
+  let prefs = padcookie.getPref('userPrefs') || {};
+
+  if (typeof prefs.tocPopup === 'undefined') {
+    prefs.tocPopup = true;
+    padcookie.setPref('userPrefs', prefs);
+  }
+
+  const enabled = prefs.tocPopup === true;
+
+  $('#options-tocpopup').prop('checked', enabled);
+  $('#toc-container').toggleClass('as-popup', enabled);
+  $('html').toggleClass('has-toc', enabled);
+  console.log($('html'));
+  $('#options-tocpopup').on('change', function () {
+    const isChecked = $(this).is(':checked');
+    prefs.tocPopup = isChecked;
+    padcookie.setPref('userPrefs', prefs);
+    $('#toc-container').toggleClass('as-popup', isChecked);
+    $('html').toggleClass('has-toc', isChecked);
+  });
+};
