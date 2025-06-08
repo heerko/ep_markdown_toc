@@ -7,6 +7,11 @@ let editorInfo = null;
 // render function stub defined in postAceInit
 let renderMarkdownTOC = () => { };
 
+const tags = ['h1', 'h2', 'h3', 'h4', 'code'];
+exports.aceRegisterBlockElements = () => tags;
+
+let _ace;
+
 /**
  * Create or retrieve the TOC container element
  */
@@ -23,25 +28,25 @@ const createTocContainer = () => {
  * Updates the TOC content
  * @param {Array<{level: number, text: string, line: number}>} headings - Array of heading objects
  */
-const updateTOCContent = (headings) => {
-  tocContainer.innerHTML = '';
-  headings.forEach(h => {
-    const link = document.createElement('a');
-    link.textContent = `${'–'.repeat(h.level - 1)} ${h.text}`;
-    link.href = `#heading-${h.line}`;
-    link.style.display = 'block';
-    link.style.marginLeft = `${(h.level - 1) * 1.2}em`;
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      document.querySelector('iframe[name="ace_outer"]')
-        ?.contentDocument?.querySelector('iframe[name="ace_inner"]')
-        ?.contentWindow?.focus();
+// const updateTOCContent = (headings) => {
+//   tocContainer.innerHTML = '';
+//   headings.forEach(h => {
+//     const link = document.createElement('a');
+//     link.textContent = `${'–'.repeat(h.level - 1)} ${h.text}`;
+//     link.href = `#heading-${h.line}`;
+//     link.style.display = 'block';
+//     link.style.marginLeft = `${(h.level - 1) * 1.2}em`;
+//     link.addEventListener('click', (e) => {
+//       e.preventDefault();
+//       document.querySelector('iframe[name="ace_outer"]')
+//         ?.contentDocument?.querySelector('iframe[name="ace_inner"]')
+//         ?.contentWindow?.focus();
 
-      scrollEditorToLine(h);
-    });
-    tocContainer.appendChild(link);
-  });
-};
+//       scrollEditorToLine(h);
+//     });
+//     tocContainer.appendChild(link);
+//   });
+// };
 
 /**
  * Scrolls editor to the specified heading
@@ -62,12 +67,7 @@ exports.postAceInit = (hook, context) => {
   // Store editor info when it's available
   const padOuter = document.querySelector('iframe[name="ace_outer"]');
   const padInner = padOuter?.contentDocument?.querySelector('iframe[name="ace_inner"]');
-  
-  // if (padInner?.contentWindow) {
-  //   editorInfo = padInner.contentWindow.editorInfo;
-  //   console.log('Editor info stored:', !!editorInfo);
-  // }
-  
+  _ace = context.ace;
   updateTOC();
 };
 
@@ -157,6 +157,12 @@ const updateTOC = () => {
       const level = match[1].length;
       const headingText = match[2];
       headings.push({ level, text: headingText, lineNumber: index });
+
+      // Add heading attribute to line in Etherpad?
+      // using global ace instance?
+      _ace.callWithAce((ace) => {
+        ace.ace_doInsertHeading(level, index);
+      }, 'insertheading', true);
     }
   });
 
@@ -193,7 +199,7 @@ let updateTimeout = null;
 exports.acePostWriteDomLineHTML = (hook, context) => {
   // console.log('acePostWriteDomLineHTML called', {context});
   clearTimeout(updateTimeout);
-  updateTimeout = setTimeout(updateTOC, 100);
+  // updateTimeout = setTimeout(()=>updateTOC(context), 100);
 };
 
 exports.aceRegisterBlockElements = () => {
@@ -205,7 +211,24 @@ exports.aceInitialized = (hook, context) => {
   //console.log('aceInitialized', context);
   editorInfo = context.editorInfo;
   //console.log('editorInfo', editorInfo);
-  updateTOC();
+  // updateTOC(context);
+
+  // Passing a level >= 0 will set a heading on the selected lines, level < 0 will remove it.
+  editorInfo.ace_doInsertHeading = (level, line) => {
+    const {documentAttributeManager, rep} = context;
+    if (!(rep.selStart && rep.selEnd)) return;
+    if (level >= 0 && tags[level] === undefined) return;
+    const firstLine = line;
+    const lastLine = line; // can only be a single line right?
+
+    range(firstLine, lastLine).forEach((line) => {
+      if (level >= 0) {
+        documentAttributeManager.setAttributeOnLine(line, 'heading', tags[level]);
+      } else {
+        documentAttributeManager.removeAttributeOnLine(line, 'heading');
+      }
+    });
+  };
 }; 
 
 exports.postToolbarInit = () => {
@@ -235,4 +258,41 @@ exports.postToolbarInit = () => {
     $('#toc-container').toggleClass('as-popup', isChecked);
     $('html').toggleClass('has-toc', isChecked);
   });
+};
+
+/* functions from ep_headings2 */
+
+const range = (start, end) => Array.from(
+    Array(Math.abs(end - start) + 1),
+    (_, i) => start + i
+);
+
+
+// Our heading attribute will result in a heaading:h1... :h6 class
+exports.aceAttribsToClasses = (hookName, context) => {
+  if (context.key === 'heading') {
+    return [`heading:${context.value}`];
+  }
+};
+
+// Here we convert the class heading:h1 into a tag
+exports.aceDomLineProcessLineAttributes = (hookName, context) => {
+  const cls = context.cls;
+  const headingType = /(?:^| )heading:([A-Za-z0-9]*)/.exec(cls);
+  if (headingType) {
+    let tag = headingType[1];
+
+    // backward compatibility, we used propose h5 and h6, but not anymore
+    if (tag === 'h5' || tag === 'h6') tag = 'h4';
+
+    if (tags.indexOf(tag) >= 0) {
+      const modifier = {
+        preHtml: `<${tag}>`,
+        postHtml: `</${tag}>`,
+        processedMarker: true,
+      };
+      return [modifier];
+    }
+  }
+  return [];
 };

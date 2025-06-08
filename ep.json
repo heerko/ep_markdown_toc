@@ -16,7 +16,8 @@
         "acePostWriteDomLineHTML": "ep_markdown_toc/static/js/client_hooks",
         "aceRegisterBlockElements": "ep_markdown_toc/static/js/client_hooks",
         "aceInitialized": "ep_markdown_toc/static/js/client_hooks",
-        "postToolbarInit": "ep_markdown_toc/static/js/client_hooks"
+        "postToolbarInit": "ep_markdown_toc/static/js/client_hooks",
+				"aceDomLineProcessLineAttributes": "ep_markdown_toc/static/js/client_hooks"
       }
     }
   ]
