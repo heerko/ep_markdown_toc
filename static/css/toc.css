@@ -39,20 +39,3 @@
 }
 
 .has-toc #editorcontainer { margin-left: 200px; } 
-
-#editbar .menu_left [data-key="bold"] { display: none; }
-#editbar .menu_left [data-key="italic"] { display: none; }
-#editbar .menu_left [data-key="underline"] { display: none; }
-#editbar .menu_left [data-key="strikethrough"] { display: none; }
-#editbar .menu_left [data-key="bold"] { display: none; }
-#editbar .menu_left [data-key="bold"] + li { display: none; }
-#editbar .menu_left [data-key="insertorderedlist"] { display: none; }
-#editbar .menu_left [data-key="insertunorderedlist"] { display: none; }
-
-/* 
-.panel {
-  display: block;
-  position: fixed;
-  z-index: 1;
-  width: 175px;
-} */
