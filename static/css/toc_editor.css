@@ -1,0 +1,18 @@
+
+.ace-line .lineAttribMarker {
+  display: none;
+}
+
+.ace-line .lineAttribMarker.heading\:h2~ span {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.ace-line:has(.lineAttribMarker.heading\:h1) {
+  font-size: 2.5em;
+  font-weight: bold;
+}
+
+.heading\:h2 + span {
+  color: red;
+}

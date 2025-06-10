@@ -12,12 +12,12 @@
         "postAceInit": "ep_markdown_toc/static/js/client_hooks",
         "aceEditEvent": "ep_markdown_toc/static/js/client_hooks",
         "aceAttribsToClasses": "ep_markdown_toc/static/js/client_hooks",
-        "aceCreateDomLine": "ep_markdown_toc/static/js/client_hooks",
         "acePostWriteDomLineHTML": "ep_markdown_toc/static/js/client_hooks",
         "aceRegisterBlockElements": "ep_markdown_toc/static/js/client_hooks",
         "aceInitialized": "ep_markdown_toc/static/js/client_hooks",
         "postToolbarInit": "ep_markdown_toc/static/js/client_hooks",
-				"aceDomLineProcessLineAttributes": "ep_markdown_toc/static/js/client_hooks"
+				"aceDomLineProcessLineAttributes": "ep_markdown_toc/static/js/client_hooks",
+        "aceEditorCSS": "ep_markdown_toc/static/js/client_hooks"
       }
     }
   ]

@@ -1,8 +1,5 @@
 'use strict';
 
-let tocContainer;
-let tocTimeout = null;
-
 let editorInfo = null;
 // render function stub defined in postAceInit
 let renderMarkdownTOC = () => { };
@@ -11,54 +8,6 @@ const tags = ['h1', 'h2', 'h3', 'h4', 'code'];
 exports.aceRegisterBlockElements = () => tags;
 
 let _ace;
-
-/**
- * Create or retrieve the TOC container element
- */
-const createTocContainer = () => {
-  tocContainer = document.getElementById('markdown-toc');
-  if (!tocContainer) {
-    tocContainer = document.createElement('div');
-    tocContainer.id = 'markdown-toc';
-    document.body.appendChild(tocContainer);
-  }
-};
-
-/**
- * Updates the TOC content
- * @param {Array<{level: number, text: string, line: number}>} headings - Array of heading objects
- */
-// const updateTOCContent = (headings) => {
-//   tocContainer.innerHTML = '';
-//   headings.forEach(h => {
-//     const link = document.createElement('a');
-//     link.textContent = `${'–'.repeat(h.level - 1)} ${h.text}`;
-//     link.href = `#heading-${h.line}`;
-//     link.style.display = 'block';
-//     link.style.marginLeft = `${(h.level - 1) * 1.2}em`;
-//     link.addEventListener('click', (e) => {
-//       e.preventDefault();
-//       document.querySelector('iframe[name="ace_outer"]')
-//         ?.contentDocument?.querySelector('iframe[name="ace_inner"]')
-//         ?.contentWindow?.focus();
-
-//       scrollEditorToLine(h);
-//     });
-//     tocContainer.appendChild(link);
-//   });
-// };
-
-/**
- * Scrolls editor to the specified heading
- * @param {Object} h - Heading object containing line number
- */
-const scrollEditorToLine = (h) => {
-  const outer = document.querySelector('iframe[name="ace_outer"]');
-  const inner = outer?.contentDocument?.querySelector('iframe[name="ace_inner"]');
-  const lineEl = inner?.contentDocument?.getElementById(`heading-${h.line}`);
-  if (!lineEl) return;
-  lineEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
 
 /**
  * Init TOC functionality on editor ready
@@ -213,7 +162,7 @@ exports.aceInitialized = (hook, context) => {
   //console.log('editorInfo', editorInfo);
   // updateTOC(context);
 
-  // Passing a level >= 0 will set a heading on the selected lines, level < 0 will remove it.
+ // Passing a level >= 0 will set a heading on the selected lines, level < 0 will remove it.
   editorInfo.ace_doInsertHeading = (level, line) => {
     const {documentAttributeManager, rep} = context;
     if (!(rep.selStart && rep.selEnd)) return;
@@ -229,6 +178,7 @@ exports.aceInitialized = (hook, context) => {
       }
     });
   };
+
 }; 
 
 exports.postToolbarInit = () => {
@@ -236,21 +186,41 @@ exports.postToolbarInit = () => {
     $('#markdown-cheat').toggleClass('popup-show');
   });
 
+  initSettingsUI();
+};
+
+/* getting and setting the preferences from the cookie.
+TODO: hiding the text styling buttons with css for now, 
+but it maybe possible to manipulate the list from settings.json? 
+*/
+function initSettingsUI() {
   const padcookie = require('ep_etherpad-lite/static/js/pad_cookie').padcookie;
 
   let prefs = padcookie.getPref('userPrefs') || {};
-
+  
+  // defaults for first load
   if (typeof prefs.tocPopup === 'undefined') {
     prefs.tocPopup = true;
     padcookie.setPref('userPrefs', prefs);
   }
+  if (typeof prefs.hideButtons === 'undefined') {
+    prefs.hideButtons = true;
+    padcookie.setPref('userPrefs', prefs);
+  }
 
-  const enabled = prefs.tocPopup === true;
+  const tocEnabled = prefs.tocPopup === true;
+  const hideButtons = prefs.hideButtons === true;
 
-  $('#options-tocpopup').prop('checked', enabled);
-  $('#toc-container').toggleClass('as-popup', enabled);
-  $('html').toggleClass('has-toc', enabled);
-  console.log($('html'));
+  // show / hide toc
+  $('#options-tocpopup').prop('checked', tocEnabled);
+  $('#toc-container').toggleClass('as-popup', tocEnabled);
+  $('html').toggleClass('has-toc', tocEnabled);
+  
+  // show hide text styling buttons
+  $('#options-hideButtons').prop('checked', hideButtons);
+  $('html').toggleClass('hide-buttons', hideButtons);
+
+  // update the settings menu
   $('#options-tocpopup').on('change', function () {
     const isChecked = $(this).is(':checked');
     prefs.tocPopup = isChecked;
@@ -258,7 +228,13 @@ exports.postToolbarInit = () => {
     $('#toc-container').toggleClass('as-popup', isChecked);
     $('html').toggleClass('has-toc', isChecked);
   });
-};
+  $('#options-hideButtons').on('change', function () {
+    const isChecked = $(this).is(':checked');
+    prefs.hideButtons = isChecked;
+    padcookie.setPref('userPrefs', prefs);
+    $('html').toggleClass('hide-buttons', isChecked);
+  });
+}
 
 /* functions from ep_headings2 */
 
