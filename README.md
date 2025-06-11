@@ -15,4 +15,4 @@ It borrows heavily from the excellent [ep_headings2](https://github.com/ether/ep
 Etherpad 2.3.0 (maybe lower, untested)
 
 ## Licence
-This repository is published under the [CC4r*](LICENSE) license.
+This repository is published under the [CC4r*](https://constantvzw.org/wefts/cc4r.en.html) license.
