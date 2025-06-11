@@ -1,14 +1,14 @@
 {
   "name": "ep_markdown_toc",
   "description": "Provides markdown-based heading detection and TOC for Etherpad, used in Octomode.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": {
     "name": "hrk",
     "email": "heerko@hackersanddesigners.nl"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ether/ep_markdown_toc.git"
+    "url": "https://github.com/heerko/ep_markdown_toc"
   },
   "dependencies": {
     "showdown": "*"
