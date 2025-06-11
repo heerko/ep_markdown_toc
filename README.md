@@ -1,24 +1,18 @@
+## Markdown editing in Etherpad
 
-Markdown editing in Etherpad
-============================
+This plugin enhances Etherpad for Markdown-style writing.
+It does this in multiple ways:
+- It enables automatic generation of a Table of Contents based on Markdown-style hashsign headings (#, ##, etc.) in Etherpad documents (can be disabled through settings). === style headings are not supported at the moment, and likely will never be.
+- It styles the headings to make it easier to scan long documents for chapters (can be disabled through settings)
+- It adds a button to the toolbar that shows a quick cheatsheet for Markdown syntax
+- It removes the default text styling buttons from the toolbar (can be reenabled through settings)
 
-WIP markdown only editing in Etherpad. 
+It was developed as a compagnion to [Octomode](https://cc.vvvvvvaria.org/wiki/Octomode), a collective editing space for PDF making, using Etherpad, Paged.js and Flask. 
+It borrows heavily from the excellent [ep_headings2](https://github.com/ether/ep_headings2) plugin.
 
-Features
-========
+## Requirements
 
-* MD editbar buttons
-* MD-based document navigation 
+Etherpad 2.3.0 (maybe lower, untested)
 
-
-Setting as default
-==================
-
-Paste the below into your settings.
-
-"ep_markdown_toc_default": true,
-
-Requirements
-============
-
-Etherpad 1.8.1
+## Licence
+This repository is published under the [CC4r*](LICENSE) license.

@@ -1,27 +1,25 @@
 'use strict';
 
-let editorInfo = null;
-// render function stub defined in postAceInit
-let renderMarkdownTOC = () => { };
-
-const tags = ['h1', 'h2', 'h3', 'h4', 'code'];
-exports.aceRegisterBlockElements = () => tags;
-
+let _editorInfo = null; // Both no longer used atm, but leaving them for now.
 let _ace;
+const tags = ['h1', 'h2', 'h3', 'h4'];
+
+/* Load the css in the editor iframe */
+exports.aceEditorCSS = function() {
+  return ["ep_markdown_toc/static/css/toc_editor.css"];
+};
 
 /**
  * Init TOC functionality on editor ready
  */
 exports.postAceInit = (hook, context) => {
-  // Store editor info when it's available
-  const padOuter = document.querySelector('iframe[name="ace_outer"]');
-  const padInner = padOuter?.contentDocument?.querySelector('iframe[name="ace_inner"]');
+  // store a reference to the editor for later
   _ace = context.ace;
   updateTOC();
 };
 
 /**
- * Debounced handler for editor content changes
+ * Debounced handler for editor content changes, to update the TOC
  */
 exports.aceEditEvent = (hook, context) => {
   const callstack = context.callstack;
@@ -33,47 +31,64 @@ exports.aceEditEvent = (hook, context) => {
   }
 };
 
-exports.aceAttribsToClasses = (hook, context) => {
-  // console.log('aceAttribsToClasses called', {context});
-  if (context.key.indexOf('heading') !== -1) {
-    return ['heading', context.value];
+/* 
+Detect markdown headings and add dynamic DOM classes for headings
+*/
+exports.acePostWriteDomLineHTML = (hook, context) => {
+  try {
+    // console.log(context);
+    if (!context || !context.node) return;
+    // Remove previous heading classes
+    context.node.classList.remove('markdown-heading');
+    context.node.className = context.node.className.replace(/\bmarkdown-heading-level-\d\b/g, '');
+    
+    // search for markdown # headings in the text
+    const text = context.text || context.node.textContent || '';
+    const match = text.match(/^(#{1,6})\s+/);
+    if (match) {
+      // console.log("matched!")
+      const level = match[1].length;
+      context.node.classList.add('markdown-heading');
+      context.node.classList.add(`markdown-heading-level-${level}`);
+    }
+  } catch (e) {
+    // Fail silently
   }
-  return [];
 };
 
-exports.aceCreateDomLine = (hook, context) => {
-  // console.log('aceCreateDomLine called', {context});
-  const headingType = /(?:^| )heading:([1-6])/.exec(context.cls);
-  if (headingType) {
-    // console.log('Found heading:', headingType);
-    const level = headingType[1];
-    const modifier = {
-      extraOpenTags: `<h${level} id="heading-${context.row}">`,
-      extraCloseTags: `</h${level}>`,
-      cls: context.cls
-    };
-    return [modifier];
-  }
-  return [];
+/*
+Save reference to editorInfo, maybe remove?
+*/
+exports.aceInitialized = (hook, context) => {
+  _editorInfo = context.editorInfo;
+};
+
+/* 
+Setup the tool button and settings ui
+*/
+exports.postToolbarInit = () => {
+  $('#markdown-cheat-toggle').on('click', () => {
+    $('#markdown-cheat').toggleClass('popup-show');
+  });
+
+  initSettingsUI();
 };
 
 const scrollToLine = (lineNumber) => {
   // Get the editor iframes
   const padOuter = document.querySelector('iframe[name="ace_outer"]');
   const padInner = padOuter?.contentDocument?.querySelector('iframe[name="ace_inner"]');
-  
+
   if (!padInner?.contentWindow?.document) {
     console.warn('Could not find inner frame document');
     return;
   }
 
-  // Focus
   padInner.contentWindow.focus();
-  // Then scroll
   const lineElement = padInner.contentWindow.document.querySelectorAll('div')[lineNumber];
   if (lineElement) {
     setTimeout(() => {
-      lineElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      lineElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   } else {
     console.warn('Could not find line element');
@@ -82,11 +97,7 @@ const scrollToLine = (lineNumber) => {
 
 const updateTOC = () => {
   const container = document.getElementById('markdown-toc');
-  if (!container) {
-    const newContainer = document.createElement('div');
-    newContainer.id = 'markdown-toc';
-    document.body.appendChild(newContainer);
-  }
+  if (!container) return;
 
   // Get pad outer and inner iframe
   const padOuter = document.querySelector('iframe[name="ace_outer"]');
@@ -96,7 +107,7 @@ const updateTOC = () => {
   }
 
   const innerDoc = padInner.contentDocument;
-  const lines = Array.from(innerDoc.querySelectorAll('div'));
+  const lines = Array.from(innerDoc.querySelectorAll('.ace-line'));
   const headings = [];
 
   lines.forEach((div, index) => {
@@ -106,88 +117,35 @@ const updateTOC = () => {
       const level = match[1].length;
       const headingText = match[2];
       headings.push({ level, text: headingText, lineNumber: index });
-
-      // Add heading attribute to line in Etherpad?
-      // using global ace instance?
-      _ace.callWithAce((ace) => {
-        ace.ace_doInsertHeading(level, index);
-      }, 'insertheading', true);
     }
   });
 
   // Update TOC content
   const tocContainer = document.getElementById('markdown-toc');
   if (!tocContainer) return;
-
   while (tocContainer.firstChild) {
     tocContainer.removeChild(tocContainer.firstChild);
   }
 
   headings.forEach(h => {
     const li = document.createElement('li');
-    
     const link = document.createElement('a');
-    link.textContent = `${'–'.repeat(h.level - 1)} ${h.text}`;
+    link.textContent = `- ${h.text}`;//`${'–'.repeat(h.level - 1)} ${h.text}`;
     link.href = '#';
-    link.style.marginLeft = `${(h.level - 1) * 1.2}em`;
+    link.style.marginLeft = `${(h.level - 1) * .75}em`;
     link.dataset.line = h.lineNumber.toString();
-    
+
     link.onclick = (e) => {
       e.preventDefault();
       e.stopPropagation();
       scrollToLine(h.lineNumber);
     };
-    
+
     li.appendChild(link);
     tocContainer.appendChild(li);
   });
 };
 
-let updateTimeout = null;
-
-exports.acePostWriteDomLineHTML = (hook, context) => {
-  // console.log('acePostWriteDomLineHTML called', {context});
-  clearTimeout(updateTimeout);
-  // updateTimeout = setTimeout(()=>updateTOC(context), 100);
-};
-
-exports.aceRegisterBlockElements = () => {
-  // console.log('aceRegisterBlockElements called');
-  return ['heading'];
-};
-
-exports.aceInitialized = (hook, context) => {
-  //console.log('aceInitialized', context);
-  editorInfo = context.editorInfo;
-  //console.log('editorInfo', editorInfo);
-  // updateTOC(context);
-
- // Passing a level >= 0 will set a heading on the selected lines, level < 0 will remove it.
-  editorInfo.ace_doInsertHeading = (level, line) => {
-    const {documentAttributeManager, rep} = context;
-    if (!(rep.selStart && rep.selEnd)) return;
-    if (level >= 0 && tags[level] === undefined) return;
-    const firstLine = line;
-    const lastLine = line; // can only be a single line right?
-
-    range(firstLine, lastLine).forEach((line) => {
-      if (level >= 0) {
-        documentAttributeManager.setAttributeOnLine(line, 'heading', tags[level]);
-      } else {
-        documentAttributeManager.removeAttributeOnLine(line, 'heading');
-      }
-    });
-  };
-
-}; 
-
-exports.postToolbarInit = () => {
-  $('#markdown-cheat-toggle').on('click', () => {
-    $('#markdown-cheat').toggleClass('popup-show');
-  });
-
-  initSettingsUI();
-};
 
 /* getting and setting the preferences from the cookie.
 TODO: hiding the text styling buttons with css for now, 
@@ -197,78 +155,66 @@ function initSettingsUI() {
   const padcookie = require('ep_etherpad-lite/static/js/pad_cookie').padcookie;
 
   let prefs = padcookie.getPref('userPrefs') || {};
-  
+
   // defaults for first load
-  if (typeof prefs.tocPopup === 'undefined') {
-    prefs.tocPopup = true;
+  if (typeof prefs.hideToc === 'undefined') {
+    prefs.hideToc = false; // defaults to false
     padcookie.setPref('userPrefs', prefs);
   }
   if (typeof prefs.hideButtons === 'undefined') {
-    prefs.hideButtons = true;
+    prefs.hideButtons = true; // defaults to true 
+    padcookie.setPref('userPrefs', prefs);
+  }
+  if (typeof prefs.styleHeadings === 'undefined') {
+    prefs.styleHeadings = true; // also true
     padcookie.setPref('userPrefs', prefs);
   }
 
-  const tocEnabled = prefs.tocPopup === true;
-  const hideButtons = prefs.hideButtons === true;
+  // apply the headings class to the inner iframe if set
+  const padOuter = document.querySelector('iframe[name="ace_outer"]');
+  const padInner = padOuter?.contentDocument?.querySelector('iframe[name="ace_inner"]');
+  const innerHtml = padInner?.contentDocument?.documentElement;
+  if (innerHtml && prefs.styleHeadings !== false) {
+    innerHtml.classList.add('style-md-headings');
+  }
 
-  // show / hide toc
-  $('#options-tocpopup').prop('checked', tocEnabled);
-  $('#toc-container').toggleClass('as-popup', tocEnabled);
-  $('html').toggleClass('has-toc', tocEnabled);
-  
-  // show hide text styling buttons
-  $('#options-hideButtons').prop('checked', hideButtons);
-  $('html').toggleClass('hide-buttons', hideButtons);
+  function bindToggleSetting(optionId, className, prefKey) {
+    const enabled = prefs[prefKey] === true;
+    $(optionId).prop('checked', enabled);
+    $('html').toggleClass(className, enabled);
 
-  // update the settings menu
-  $('#options-tocpopup').on('change', function () {
-    const isChecked = $(this).is(':checked');
-    prefs.tocPopup = isChecked;
-    padcookie.setPref('userPrefs', prefs);
-    $('#toc-container').toggleClass('as-popup', isChecked);
-    $('html').toggleClass('has-toc', isChecked);
-  });
-  $('#options-hideButtons').on('change', function () {
-    const isChecked = $(this).is(':checked');
-    prefs.hideButtons = isChecked;
-    padcookie.setPref('userPrefs', prefs);
-    $('html').toggleClass('hide-buttons', isChecked);
-  });
+    $(optionId).on('change', function () {
+      const isChecked = $(this).is(':checked');
+      prefs[prefKey] = isChecked;
+      padcookie.setPref('userPrefs', prefs);
+      $('html').toggleClass(className, isChecked);
+      // we need the class on the inner iframe, so this ugliness:
+      if (className === 'style-md-headings') {
+        const padOuter = document.querySelector('iframe[name="ace_outer"]');
+        const padInner = padOuter?.contentDocument?.querySelector('iframe[name="ace_inner"]');
+        const innerHtml = padInner?.contentDocument?.documentElement;
+        if (innerHtml) {
+          innerHtml.classList.toggle('style-md-headings', isChecked);
+        }
+      }
+    });
+  }
+
+  bindToggleSetting('#options-hideToc', 'hide-toc', 'hideToc');
+  bindToggleSetting('#options-hideButtons', 'hide-buttons', 'hideButtons');
+  bindToggleSetting('#options-styleHeadings', 'style-md-headings', 'styleHeadings');
 }
 
-/* functions from ep_headings2 */
+/* functions stolen from ep_headings2 */
 
 const range = (start, end) => Array.from(
-    Array(Math.abs(end - start) + 1),
-    (_, i) => start + i
+  Array(Math.abs(end - start) + 1),
+  (_, i) => start + i
 );
-
 
 // Our heading attribute will result in a heaading:h1... :h6 class
 exports.aceAttribsToClasses = (hookName, context) => {
   if (context.key === 'heading') {
     return [`heading:${context.value}`];
   }
-};
-
-// Here we convert the class heading:h1 into a tag
-exports.aceDomLineProcessLineAttributes = (hookName, context) => {
-  const cls = context.cls;
-  const headingType = /(?:^| )heading:([A-Za-z0-9]*)/.exec(cls);
-  if (headingType) {
-    let tag = headingType[1];
-
-    // backward compatibility, we used propose h5 and h6, but not anymore
-    if (tag === 'h5' || tag === 'h6') tag = 'h4';
-
-    if (tags.indexOf(tag) >= 0) {
-      const modifier = {
-        preHtml: `<${tag}>`,
-        postHtml: `</${tag}>`,
-        processedMarker: true,
-      };
-      return [modifier];
-    }
-  }
-  return [];
 };

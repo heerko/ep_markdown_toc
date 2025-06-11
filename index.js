@@ -9,10 +9,6 @@ exports.eejsBlock_styles = (hook, context) => {
   context.content += '<link href="../static/plugins/ep_markdown_toc/static/css/popup.css" rel="stylesheet">';
 };
 
-// exports.eejsBlock_afterEditbar = (hookName, args, cb) => {
-//   args.content += eejs.require('ep_markdown_toc/templates/markdown.ejs');
-//   return cb();
-// };
 
 exports.eejsBlock_editbarMenuRight = (hookName, args, cb) => {
   // console.log("MENU RIGHT");
