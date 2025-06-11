@@ -46,7 +46,8 @@
 /* 
 Add a margin for the TOC when enabled
 */
-.hide-toc #editorcontainer { margin-left: 200px; } 
+#editorcontainer { margin-left: 200px; } 
+.hide-toc #editorcontainer { margin-left: initial; }
 
 /* 
 For hiding the regular Ace/Etherpad editor buttons.
