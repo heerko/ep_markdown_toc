@@ -1,5 +1,7 @@
 ## Markdown editing in Etherpad
 
+![Plugin demo](./assets/demo.gif)
+
 This plugin enhances Etherpad for Markdown-style writing.
 It does this in multiple ways:
 - It enables automatic generation of a Table of Contents based on Markdown-style hashsign headings (#, ##, etc.) in Etherpad documents (can be disabled through settings). === style headings are not supported at the moment, and likely will never be.
