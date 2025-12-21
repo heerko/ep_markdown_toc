@@ -3,6 +3,7 @@
 let _editorInfo = null; // Both no longer used atm, but leaving them for now.
 let _ace;
 const tags = ['h1', 'h2', 'h3', 'h4'];
+let plainPasteEnabled = true;
 
 /* Load the css in the editor iframe */
 exports.aceEditorCSS = function() {
@@ -15,6 +16,8 @@ exports.aceEditorCSS = function() {
 exports.postAceInit = (hook, context) => {
   // store a reference to the editor for later
   _ace = context.ace;
+  // Initialize plain paste handler (if enabled).
+  maybeInitPlainPaste(context);
   updateTOC();
 };
 
@@ -161,6 +164,7 @@ but it maybe possible to manipulate the list from settings.json?
 */
 function initSettingsUI() {
   const padcookie = require('ep_etherpad-lite/static/js/pad_cookie').padcookie;
+  const plainPaste = require('./plain_paste');
 
   let prefs = padcookie.getPref('userPrefs') || {};
 
@@ -175,6 +179,10 @@ function initSettingsUI() {
   }
   if (typeof prefs.styleHeadings === 'undefined') {
     prefs.styleHeadings = true; // also true
+    padcookie.setPref('userPrefs', prefs);
+  }
+  if (typeof prefs.plainPaste === 'undefined') {
+    prefs.plainPaste = true; // default to on
     padcookie.setPref('userPrefs', prefs);
   }
 
@@ -211,6 +219,22 @@ function initSettingsUI() {
   bindToggleSetting('#options-hideToc', 'hide-toc', 'hideToc');
   bindToggleSetting('#options-hideButtons', 'hide-buttons', 'hideButtons');
   bindToggleSetting('#options-styleHeadings', 'style-md-headings', 'styleHeadings');
+
+  // Plain paste toggle
+  const plainPasteCheckbox = $('#options-plainPaste');
+  plainPasteCheckbox.prop('checked', prefs.plainPaste === true);
+  plainPasteEnabled = prefs.plainPaste === true;
+  plainPasteCheckbox.on('change', function () {
+    const isChecked = $(this).is(':checked');
+    prefs.plainPaste = isChecked;
+    plainPasteEnabled = isChecked;
+    padcookie.setPref('userPrefs', prefs);
+    if (isChecked) {
+      plainPaste.ensure(context);
+    } else {
+      plainPaste.disable();
+    }
+  });
 }
 
 /* functions stolen from ep_headings2 */
@@ -226,3 +250,12 @@ exports.aceAttribsToClasses = (hookName, context) => {
     return [`heading:${context.value}`];
   }
 };
+
+/*
+ Plain paste integration: init if enabled and available.
+*/
+function maybeInitPlainPaste(context) {
+  if (!plainPasteEnabled) return;
+  //const plainPaste = require('./plain_paste');
+  //plainPaste.ensure(context);
+}
