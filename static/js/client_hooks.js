@@ -71,6 +71,14 @@ exports.postToolbarInit = () => {
     $('#markdown-cheat').toggleClass('popup-show');
   });
 
+  const toggleToc = (event) => {
+    if (event) event.preventDefault();
+    $('#options-hideToc').click();
+  };
+
+  $('#markdown-toc-toggle').on('click', toggleToc);
+  $('#markdown-toc-toggle-menu').on('click', toggleToc);
+
   initSettingsUI();
 };
 

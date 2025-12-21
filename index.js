@@ -12,7 +12,13 @@ exports.eejsBlock_styles = (hook, context) => {
 
 exports.eejsBlock_editbarMenuRight = (hookName, args, cb) => {
   // console.log("MENU RIGHT");
-  args.content = eejs.require('ep_markdown_toc/templates/markdownButton.ejs') + args.content;
+  args.content = eejs.require('ep_markdown_toc/templates/tocToggleButton.ejs') +
+    eejs.require('ep_markdown_toc/templates/markdownButton.ejs') + args.content;
+  return cb();
+};
+
+exports.eejsBlock_dd_view = (hookName, args, cb) => {
+  args.content += '<li><a href="#" id="markdown-toc-toggle-menu">Markdown TOC</a></li>';
   return cb();
 };
 
