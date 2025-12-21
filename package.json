@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/heerko/ep_markdown_toc"
+    "url": "git+https://github.com/heerko/ep_markdown_toc.git"
   },
   "dependencies": {
     "showdown": "*"
