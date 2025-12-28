@@ -18,6 +18,7 @@ exports.postAceInit = (hook, context) => {
   _ace = context.ace;
   // Initialize plain paste handler (if enabled).
   maybeInitPlainPaste(context);
+  initShortcutBlocker(context);
   updateTOC();
 };
 
@@ -173,10 +174,6 @@ function initSettingsUI() {
     prefs.hideToc = false; // defaults to false
     padcookie.setPref('userPrefs', prefs);
   }
-  if (typeof prefs.hideButtons === 'undefined') {
-    prefs.hideButtons = true; // defaults to true 
-    padcookie.setPref('userPrefs', prefs);
-  }
   if (typeof prefs.styleHeadings === 'undefined') {
     prefs.styleHeadings = true; // also true
     padcookie.setPref('userPrefs', prefs);
@@ -217,7 +214,6 @@ function initSettingsUI() {
   }
 
   bindToggleSetting('#options-hideToc', 'hide-toc', 'hideToc');
-  bindToggleSetting('#options-hideButtons', 'hide-buttons', 'hideButtons');
   bindToggleSetting('#options-styleHeadings', 'style-md-headings', 'styleHeadings');
 
   // Plain paste toggle
@@ -258,4 +254,34 @@ function maybeInitPlainPaste(context) {
   if (!plainPasteEnabled) return;
   //const plainPaste = require('./plain_paste');
   //plainPaste.ensure(context);
+}
+
+// Disable common rich-text keyboard shortcuts (Ctrl/Cmd+B/I/U, etc.)
+function initShortcutBlocker(context) {
+  const padOuter = document.querySelector('iframe[name="ace_outer"]');
+  const padInner = padOuter?.contentDocument?.querySelector('iframe[name="ace_inner"]');
+  const innerDoc = padInner?.contentDocument;
+  if (!innerDoc) return;
+
+  const handler = (e) => {
+    const key = (e.key || '').toLowerCase();
+    const meta = e.metaKey || e.ctrlKey;
+    if (!meta) return;
+    // Block common formatting combos:
+    // b (bold), i (italic), u (underline), 5 (strike);
+    // Shift+L (bullet), Shift+N (numbered list), Shift+1 (heading), Shift+C (color).
+    const block =
+      ['b', 'i', 'u', '5'].includes(key) ||
+      (e.shiftKey && ['l', 'n', '1', 'c'].includes(key));
+    if (block) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  };
+
+  if (!innerDoc._tocShortcutBlockerBound) {
+    innerDoc.addEventListener('keydown', handler, true);
+    innerDoc._tocShortcutBlockerBound = true;
+  }
 }

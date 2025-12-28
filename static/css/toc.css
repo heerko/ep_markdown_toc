@@ -53,15 +53,15 @@ Add a margin for the TOC when enabled
 For hiding the regular Ace/Etherpad editor buttons.
 TODO: We might be able to this through manipulating the settings instead 
 */
-.hide-buttons #editbar .menu_left [data-key="bold"],
-.hide-buttons #editbar .menu_left [data-key="italic"],
-.hide-buttons #editbar .menu_left [data-key="underline"],
-.hide-buttons #editbar .menu_left [data-key="strikethrough"],
-.hide-buttons #editbar .menu_left [data-key="bold"],
-.hide-buttons #editbar .menu_left [data-key="insertorderedlist"],
-.hide-buttons #editbar .menu_left [data-key="insertunorderedlist"],
-.hide-buttons #editbar .menu_left [data-key="indent"],
-.hide-buttons #editbar .menu_left [data-key="outdent"],
-.hide-buttons #editbar .menu_left [data-key="bold"] + li { 
+#editbar .menu_left [data-key="bold"],
+#editbar .menu_left [data-key="italic"],
+#editbar .menu_left [data-key="underline"],
+#editbar .menu_left [data-key="strikethrough"],
+#editbar .menu_left [data-key="bold"],
+#editbar .menu_left [data-key="insertorderedlist"],
+#editbar .menu_left [data-key="insertunorderedlist"],
+#editbar .menu_left [data-key="indent"],
+#editbar .menu_left [data-key="outdent"],
+#editbar .menu_left [data-key="bold"] + li { 
   display: none !important;
 }
