@@ -28,3 +28,35 @@
 #markdown-cheat .popup-content pre {
     white-space: break-spaces;
 }
+
+.cheat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.cheat-block {
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.cheat-block h3 {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+}
+
+.cheat-lines {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cheat-lines li {
+  margin: 0 0 4px 0;
+  white-space: pre-line;
+}

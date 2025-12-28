@@ -8,6 +8,7 @@ It does this in multiple ways:
 - It styles the headings to make it easier to scan long documents for chapters (can be disabled through settings)
 - It adds a button to the toolbar that shows a quick cheatsheet for Markdown syntax
 - It removes the default text styling buttons from the toolbar (can be reenabled through settings)
+- Tries to remove rich text when pasting
 
 It was developed as a compagnion to [Octomode](https://cc.vvvvvvaria.org/wiki/Octomode), a collective editing space for PDF making, using Etherpad, Paged.js and Flask. 
 It borrows heavily from the excellent [ep_headings2](https://github.com/ether/ep_headings2) plugin.
